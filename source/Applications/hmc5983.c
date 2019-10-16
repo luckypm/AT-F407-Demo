@@ -30,19 +30,19 @@ static void HMC5883L_I2C_Init(void)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
     GPIO_InitStructure.GPIO_OType = GPIO_OType_OD;
-	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_UP;//GPIO_PuPd_NOPULL;
+	GPIO_InitStructure.GPIO_PuPd  = GPIO_PuPd_NOPULL;
     GPIO_Init(HMC5883L_I2C_Port, &GPIO_InitStructure);
 	
 	GPIO_PinAFConfig(HMC5883L_I2C_Port, HMC5883L_I2C_SCL_Souce, HMC5883L_I2C_SCL_AF);
 	GPIO_PinAFConfig(HMC5883L_I2C_Port, HMC5883L_I2C_SDA_Souce, HMC5883L_I2C_SDA_AF);
 	
     /* I2C configuration */
-    I2C_InitStructure.I2C_Mode = I2C_Mode_SMBusHost;//I2C_Mode_I2C;
+    I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
     I2C_InitStructure.I2C_OwnAddress1 = 0xE0;//HMC5883L_DEFAULT_ADDRESS; // HMC5883L 7-bit adress = 0x1E;
     I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
-    I2C_InitStructure.I2C_ClockSpeed = 50000;//HMC5883L_I2C_Speed;
+    I2C_InitStructure.I2C_ClockSpeed = HMC5883L_I2C_Speed;
 
     /* Apply I2C configuration after enabling it */
     I2C_Init(HMC5883L_I2C, &I2C_InitStructure);
@@ -214,7 +214,7 @@ static void hmc5983ScaleMag(int32_t *in, float *out, float divisor) {
     float scale;
 
    // scale = divisor * (1.0f / 187.88f); 
-   scale = divisor * (1.0f / 660.0f); 
+   scale = divisor * (1.0f / 660.0f); //正常scale
 
     out[0] = hmc5983Data.magSign[0] * DIMU_ORIENT_MAG_X * scale;//DIMU_ORIENT_MAG_X为-in[0]
     out[1] = hmc5983Data.magSign[1] * DIMU_ORIENT_MAG_Y * scale;//+in[1]
@@ -282,17 +282,6 @@ void hmc5983Decode(void) {
 
         hmc5983Data.lastUpdate = timerMicros();
     }
-}
-uint16_t sh79f329GetReg(uint8_t reg) {
-    static uint8_t rxBuf[2];
-	uint16_t val = 0;
-     UTIL_ISR_DISABLE;
-	 HMC5883L_I2C_BufferRead(HMC5883L_DEFAULT_ADDRESS, rxBuf, reg, 2);
-	 UTIL_ISR_ENABLE;
-	 val = (rxBuf[1] << 8) | rxBuf[0];
-
-
-    return val;
 }
 
 static uint8_t hmc5983GetReg(uint8_t reg) {
@@ -386,13 +375,12 @@ uint8_t hmc5983Init(void) {
     }
 
     // wait for a valid response
-    //while (--i && hmc5983GetReg(HMC5883L_RA_ID_A) != 'H')
-    while (--i && hmc5983GetReg(0x02) > 0)
+    while (--i && hmc5983GetReg(HMC5883L_RA_ID_A) != 'H')
         delay(100);
 
     if (i > 0) {
         // 75Hz, 8x oversample 数据输出寄存器更新频率75HZ，每次测量输出时采样平均数为8
-        /*hmc5983ReliablySetReg(HMC5883L_RA_CONFIG_A, 0xF8);
+        hmc5983ReliablySetReg(HMC5883L_RA_CONFIG_A, 0xF8);
         delay(10);
         //    // highest gain (+-0.88 Ga)
         //    hmc5983ReliablySetReg(0x01, 0b00000000);
@@ -401,7 +389,7 @@ uint8_t hmc5983Init(void) {
         delay(10);
 
         hmc5983ReliablySetReg(HMC5883L_RA_MODE, 0x00);
-        delay(10);*/
+        delay(10);
 
         hmc5983Data.readCmd = HMC5883L_RA_DATAX_H;
 

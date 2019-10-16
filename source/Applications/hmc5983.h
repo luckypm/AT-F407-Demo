@@ -27,7 +27,7 @@
 #define HMC5983_RETRIES         5
 #define DATE_OUTPUT_RATE		75//数据输出频率75HZ
 
-#define HMC5883L_ADDRESS            0x0b//0x1E // this device only has one address
+#define HMC5883L_ADDRESS            0x1E // this device only has one address
 #define HMC5883L_DEFAULT_ADDRESS    (HMC5883L_ADDRESS<<1)
 
 #define HMC5883L_RA_CONFIG_A        0x00
@@ -74,7 +74,6 @@ extern void hmc5983Decode(void);
 extern void hmc5983Enable(void);
 extern void hmc5983Disable(void);
 extern void hmc5983Read(void);
-extern uint16_t sh79f329GetReg(uint8_t reg);
 
 
 #endif

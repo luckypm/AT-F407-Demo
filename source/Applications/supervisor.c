@@ -11,6 +11,8 @@
 #include "uwb.h"
 #include "pwm.h"
 #include "sh79f329.h"
+#include "lcd.h"
+
 #include <stdlib.h>
 #include <string.h>
 
@@ -42,6 +44,16 @@ void supervisorTaskCode(void *pvParameters){
 	xLastWakeTime = xTaskGetTickCount();
 	for ( ;; )
 	{
+		/************************可替换部分*********************************/
+		char dtbuf[50];	
+		LCD_ShowString(30,120,200,16,16,"mag_value:");
+		sprintf(dtbuf,"mag_x = %f",hmc5983Data.mag[0]);
+		LCD_ShowString(30,140,200,16,16,(u8*)dtbuf);
+		sprintf(dtbuf,"mag_y = %f",hmc5983Data.mag[1]);
+		LCD_ShowString(30,160,200,16,16,(u8*)dtbuf);
+		sprintf(dtbuf,"mag_z = %f",hmc5983Data.mag[2]);
+		LCD_ShowString(30,180,200,16,16,(u8*)dtbuf);
+		/*********************************************************/
 		supervisorLEDsTogg();
 		supervisorData.key = KEY_Scan(0);
 		if(supervisorData.key == KEY0_PRES){
@@ -49,11 +61,9 @@ void supervisorTaskCode(void *pvParameters){
 		}
 		else if(supervisorData.key == WKUP_PRES){
 			pwmData.flag = FOOT_TAKE_ON;
-			sh79f329Data.start = 1;
 		}
 		else if(supervisorData.key == KEY1_PRES){
 			pwmData.flag = FOOT_TAKE_OFF;
-			sh79f329Data.start = 0;
 		}
 
 		if(supervisorData.tareSwitch)
@@ -74,6 +84,15 @@ void supervisorTaskCode(void *pvParameters){
 
 void supervisorInit(void) {
     memset((void *)&supervisorData, 0, sizeof(supervisorData));
+	LCD_Init();
+	/************************可替换部分*********************************/
+	POINT_COLOR=BLUE;
+	LCD_ShowString(30,20,200,16,16,"--------------------");
+	LCD_ShowString(30,40,200,16,16,"mag test");	
+	LCD_ShowString(30,60,200,16,16,"");	
+	LCD_ShowString(30,80,200,16,16,"--------------------");
+	POINT_COLOR=RED;
+	/**************************************************************/
     supervisorData.readyLed = digitalInit(SUPERVISOR_READY_PORT, SUPERVISOR_READY_PIN, 1);
 	xTaskCreate((TaskFunction_t )supervisorTaskCode,     	
                 (const char*    )"supervisor_task",   	

@@ -22,14 +22,14 @@ void sh79f329TaskCode(void *pvParameters){
 	xLastWakeTime = xTaskGetTickCount();
 	for ( ;; )
 	{	
-		char dtbuf[50];	
-		if(sh79f329Data.start == 1)
-			sh79f329Data.readValue =  sh79f329GetReg(0x02);
-		if(sh79f329Data.readValue > 0){
-			LCD_ShowString(30,120,200,16,16,"readValue");
-			sprintf(dtbuf,"value = %d",sh79f329Data.readValue);
-			LCD_ShowString(30,140,200,16,16,(u8*)dtbuf);
-		}
+//		char dtbuf[50];	
+//		if(sh79f329Data.start == 1)
+//			sh79f329Data.readValue =  sh79f329GetReg(0x02);
+//		if(sh79f329Data.readValue > 0){
+//			LCD_ShowString(30,120,200,16,16,"readValue");
+//			sprintf(dtbuf,"value = %d",sh79f329Data.readValue);
+//			LCD_ShowString(30,140,200,16,16,(u8*)dtbuf);
+//		}
 		sh79f329Data.cnt++;
 		sh79f329Data.lat = lat;
 		sh79f329Data.lon = lon;

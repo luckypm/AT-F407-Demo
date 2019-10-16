@@ -55,7 +55,7 @@ void init_task(void *pvParameters)
 	//configInit();
 	//commInit();
 	//telemetryInit();
-    //imuInit();
+    imuInit();
 #ifdef USE_MAVLINK
     mavlinkInit();
 #endif
@@ -68,7 +68,7 @@ void init_task(void *pvParameters)
 	//uwbInit();
 	//shellInit();
 	//pwmInit();
-	sh79f329Init();
+	//sh79f329Init();
 #ifdef DEBUG_TASK_INFO
 	initTask_uxHighWaterMark = uxTaskGetStackHighWaterMark( NULL );
 #endif
